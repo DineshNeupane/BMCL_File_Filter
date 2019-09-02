@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FBF Portal</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+    
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+            integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" 
+            crossorigin=""></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+      #mapid { height: 630px; }
+      .line {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      .axis path {
+        stroke: black;
+      }
+
+      .circle .text {
+        fill: blue;
+        font-size: 16px;
+      }
+
+      .navbar {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        background-color: #2f2f2f
+      }
+
+      .pie {
+        margin: 20px;
+      }
+
+      svg {
+        float: left;
+      }
+
+      .legend {
+        float: left;
+        font-family: "Verdana";
+        font-size: .7em;
+      }
+
+      .pie text {
+        font-family: "Verdana";
+        fill: #000;
+      }
+
+      .pie .name-text{
+        font-size: .8em;
+      }
+
+      .pie .value-text{
+        font-size: 3em;
+      }
+
+    </style>
+
+  </head>
+  <body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>                        
+          </button>
+        <a class="navbar-brand" href="#">FBF Geoportal</a>
+      </div>
+      </div>
+    </nav>
+  <br>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm"> 
+        <div class="card text-center">
+          <div class="card-body">
+            <h6 class="card-title">Estimated Casualties</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="card text-center">
+          <div class="card-body">
+            <h6 class="card-title">Estimated Property Loss</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="card text-center">
+          <div class="card-body">
+            <h6 class="card-title">Population</h6>
+          </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+  <br>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card text-center">
+          <div class="card-body">
+            <div id="mapid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-4">
+        <div class="row">
+          <div class="col-xs-12 col-sm-12">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Demographics</h5>
+                <div id="chart"></div>
+              </div>
+            </div>
+            <br>
+
+          </div>
+          <div class="col-xs-12 col-sm-12" style="height: 50px;">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Historic Rainfall Pattern</h5>
+                <div id="trend_chart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  <br>
+
+  <div class="card text-center">
+    <div class="card-body">
+      <table id="rainfall_table" class="display" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th>Station</th>
+            <th>Longitude</th>
+            <th>Latitude</th>
+            <th>Date</th>
+            <th>Rainfall (in mm)</th>
+            <th>Rise/Fall</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+
+  <script>
+    
+        //For Rainfall table
+    $(document).ready(function() {
+      $('#rainfall_table').DataTable( {
+        "ajax": "https://raw.githubusercontent.com/DineshNeupane/BMCL_File_Filter/master/rainfall.txt",
+        "columns": [
+          { "data": "name" },
+          { "data": "lat" },
+          { "data": "lng" },
+          { "data": "date" },
+          { "data": "rainfall" },
+          { "data": "rf" }
+        ]
+      } );
+    } );
+
+    var mymap = L.map('mapid').setView([28.1999999, 84.100140], 6);
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+      maxZoom: 18,
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      id: 'mapbox.streets'
+    }).addTo(mymap);
+
+    //script for pie-chart
+    var data = [
+      {name: "Male", value: 44},
+      {name: "Female", value: 46},
+      {name: "Others", value: 20},
+    ];
+    var text = "";
+
+    var width = 200;
+    var height = 200;
+    var thickness = 40;
+    var duration = 750;
+    var padding = 10;
+    var opacity = .8;
+    var opacityHover = 1;
+    var otherOpacityOnHover = .8;
+    var tooltipMargin = 13;
+
+    var radius = Math.min(width-padding, height-padding) / 2;
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    var svg = d3.select("#chart")
+    .append('svg')
+    .attr('class', 'pie')
+    .attr('width', width)
+    .attr('height', height);
+
+    var g = svg.append('g')
+    .attr('transform', 'translate(' + (width/2) + ',' + (height/2) + ')');
+
+    var arc = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius);
+
+    var pie = d3.pie()
+    .value(function(d) { return d.value; })
+    .sort(null);
+
+    var path = g.selectAll('path')
+    .data(pie(data))
+    .enter()
+    .append("g")  
+    .append('path')
+    .attr('d', arc)
+    .attr('fill', (d,i) => color(i))
+    .style('opacity', opacity)
+    .style('stroke', 'white')
+    .on("mouseover", function(d) {
+      d3.selectAll('path')
+        .style("opacity", otherOpacityOnHover);
+      d3.select(this) 
+        .style("opacity", opacityHover);
+
+      let g = d3.select("svg")
+      .style("cursor", "pointer")
+      .append("g")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+      g.append("text")
+        .attr("class", "name-text")
+        .text(`${d.data.name} (${d.data.value})`)
+        .attr('text-anchor', 'middle');
+
+      let text = g.select("text");
+      let bbox = text.node().getBBox();
+      let padding = 2;
+      g.insert("rect", "text")
+        .attr("x", bbox.x - padding)
+        .attr("y", bbox.y - padding)
+        .attr("width", bbox.width + (padding*2))
+        .attr("height", bbox.height + (padding*2))
+        .style("fill", "white")
+        .style("opacity", 0.75);
+    })
+    .on("mousemove", function(d) {
+      let mousePosition = d3.mouse(this);
+      let x = mousePosition[0] + width/2;
+      let y = mousePosition[1] + height/2 - tooltipMargin;
+
+      let text = d3.select('.tooltip text');
+      let bbox = text.node().getBBox();
+      if(x - bbox.width/2 < 0) {
+        x = bbox.width/2;
+      }
+      else if(width - x - bbox.width/2 < 0) {
+        x = width - bbox.width/2;
+      }
+
+      if(y - bbox.height/2 < 0) {
+        y = bbox.height + tooltipMargin * 2;
+      }
+      else if(height - y - bbox.height/2 < 0) {
+        y = height - bbox.height/2;
+      }
+
+      d3.select('.tooltip')
+        .style("opacity", 1)
+        .attr('transform',`translate(${x}, ${y})`);
+    })
+    .on("mouseout", function(d) {   
+      d3.select("svg")
+        .style("cursor", "none")  
+        .select(".tooltip").remove();
+      d3.selectAll('path')
+        .style("opacity", opacity);
+    })
+    .on("touchstart", function(d) {
+      d3.select("svg")
+        .style("cursor", "none");    
+    })
+    .each(function(d, i) { this._current = i; });
+
+    let legend = d3.select("#chart").append('div')
+    .attr('class', 'legend')
+    .style('margin-top', '30px');
+
+    let keys = legend.selectAll('.key')
+    .data(data)
+    .enter().append('div')
+    .attr('class', 'key')
+    .style('display', 'flex')
+    .style('align-items', 'center')
+    .style('margin-right', '20px');
+
+    keys.append('div')
+      .attr('class', 'symbol')
+      .style('height', '10px')
+      .style('width', '10px')
+      .style('margin', '5px 5px')
+      .style('background-color', (d, i) => color(i));
+
+    keys.append('div')
+      .attr('class', 'name')
+      .text(d => `${d.name} (${d.value})`);
+
+    keys.exit().remove();
+
+    //script for line chart
+    var data = [
+      {date: "2000", value: "1"},
+      {date: "2001", value: "1.1"},
+      {date: "2002", value: "0.45"},
+      {date: "2003", value: "2.41"},
+      {date: "2004", value: "1.2"},
+      {date: "2005", value: "0.9"},
+    ];
+
+    var width = 350;
+    var height = 200;
+    var margin = 50;
+
+
+    /* Format Data */
+    var parseDate = d3.timeParse("%Y");
+    data.forEach(function(d) { 
+      d.date = parseDate(d.date);
+      d.value = +d.value;
+    });
+
+
+    /* Scale */
+    var xScale = d3.scaleTime()
+    .domain(d3.extent(data, d => d.date))
+    .range([0, width-margin]);
+
+    var yScale = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.value)])
+    .range([height-margin, 0]);
+
+
+    /* Add SVG */
+    var svg = d3.select("#trend_chart").append("svg")
+    .attr("width", (width+margin)+"px")
+    .attr("height", (height+margin)+"px")
+    .append('g')
+    .attr("transform", `translate(${margin}, ${margin})`);
+
+
+    /* Add line into SVG */
+    var line = d3.line()
+    .x(d => xScale(d.date))
+    .y(d => yScale(d.value));
+
+    svg.append('path')
+      .attr('class', 'line')
+      .attr('d', line(data));
+
+
+    /* Add circles in the line */
+    svg.append("g")
+      .selectAll("circle")
+      .data(data).enter()
+      .append("g")
+      .attr("class", "circle")
+      .on("mouseover", function(d) {
+      d3.select(this)     
+        .style("cursor", "pointer")
+        .style("fill", "red")
+        .append("text")
+        .attr("class", "text")
+        .text(d.value)
+        .attr("x", d => xScale(d.date) + 5)
+        .attr("y", d => yScale(d.value) - 5);
+    })
+      .on("mouseout", function(d) {
+      d3.select(this)
+        .style("cursor", "none")  
+        .style("fill", "black")
+        .select("text").remove();
+    })
+      .append("circle")
+      .attr("cx", d => xScale(d.date))
+      .attr("cy", d => yScale(d.value))
+      .attr("r", 4);
+
+
+    /* Add Axis into SVG */
+    var xAxis = d3.axisBottom(xScale).ticks(5);
+    var yAxis = d3.axisLeft(yScale).ticks(5);
+
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", `translate(0, ${height-margin})`)
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append('text')
+      .attr("y", 15)
+      .attr("transform", "rotate(-90)")
+      .attr("fill", "#000")
+      .text("Rainfall (in mm)");
+
+
+
+  </script>
+  </body>
+</html>
