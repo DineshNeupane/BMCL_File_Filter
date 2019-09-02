@@ -1,9 +1,9 @@
 {
   "data": [
     {
-      "name": "Station 1",
-      "lat": "49",
-      "lng": "45",
+      "name": "Pokhara",
+      "lat": "28",
+      "lng": "84",
       "date": "2011/04/25",
       "rainfall": "100",
       "rf": "5421"
