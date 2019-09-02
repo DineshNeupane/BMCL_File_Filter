@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
           integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
           crossorigin=""/>
-    
+
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
 
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
@@ -172,8 +172,8 @@
 
 
   <script>
-    
-        //For Rainfall table
+
+    //For Rainfall table
     $(document).ready(function() {
       $('#rainfall_table').DataTable( {
         "ajax": "https://raw.githubusercontent.com/DineshNeupane/BMCL_File_Filter/master/rainfall.txt",
@@ -196,6 +196,11 @@
       'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
       id: 'mapbox.streets'
     }).addTo(mymap);
+
+    $("#rainfall_table").on('click', 'tr', function () {
+      var marker = L.marker([28, 84]).addTo(mymap);
+        mymap.flyTo([28, 84], 13);
+    });
 
     //script for pie-chart
     var data = [
