@@ -9,7 +9,7 @@
       "rf": "5421"
     },
     {
-      "name": "Station 1",
+      "name": "Station 2",
       "lat": "49",
       "lng": "45",
       "date": "2011/04/25",
@@ -17,7 +17,7 @@
       "rf": "5421"
     },
     {
-      "name": "Station 1",
+      "name": "Station 3",
       "lat": "49",
       "lng": "45",
       "date": "2011/04/25",
@@ -25,7 +25,7 @@
       "rf": "5421"
     },
     {
-     "name": "Station 1",
+     "name": "Station 4",
       "lat": "49",
       "lng": "45",
       "date": "2011/04/25",
