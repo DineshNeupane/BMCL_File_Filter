@@ -9,25 +9,25 @@
       "rf": "5421"
     },
     {
-      "name": "Station 2",
-      "lat": "49",
-      "lng": "45",
+      "name": "Kathmandu",
+      "lat": "27",
+      "lng": "85",
       "date": "2011/04/25",
       "rainfall": "100",
       "rf": "5421"
     },
     {
-      "name": "Station 3",
-      "lat": "49",
-      "lng": "45",
+      "name": "Biratnagar",
+      "lat": "26",
+      "lng": "87",
       "date": "2011/04/25",
       "rainfall": "100",
       "rf": "5421"
     },
     {
-     "name": "Station 4",
-      "lat": "49",
-      "lng": "45",
+     "name": "Nepalgunj",
+      "lat": "28",
+      "lng": "82",
       "date": "2011/04/25",
       "rainfall": "100",
       "rf": "5421"
